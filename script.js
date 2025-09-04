@@ -1,5 +1,4 @@
-// === Aru: AI Chatbot Brain ===
-// Extended to support modular packs + smarter understanding
+// === Aru: AI Chatbot Brain + UI Integration ===
 
 let knowledge = {}; // all packs stored here
 let memory = []; // conversation memory
@@ -58,9 +57,7 @@ function solveMath(text) {
       let result = Function('"use strict";return (' + expr + ")")();
       if (!isNaN(result)) return `${expr} = ${result}`;
     }
-  } catch {
-    return null;
-  }
+  } catch {}
   return null;
 }
 
@@ -78,41 +75,18 @@ function searchKnowledge(text) {
 
 // 🟢 Smart fallback generator
 const SMART_TEMPLATES = {
-  when: [
-    "I think it was around {year}.",
-    "Probably back in {year}.",
-    "Historical records suggest {year}."
-  ],
-  where: [
-    "Most sources say {place}.",
-    "It seems to originate from {place}.",
-    "People often associate it with {place}."
-  ],
-  why: [
-    "Well, it's probably because {reason}.",
-    "I’d guess it’s due to {reason}.",
-    "Seems like {reason} is the main reason."
-  ],
-  what: [
-    "It's basically {description}.",
-    "You could think of it as {description}.",
-    "People describe it as {description}."
-  ],
-  how: [
-    "Usually, it's done by {method}.",
-    "You can try {method}.",
-    "It involves {method} in general."
-  ]
+  when: ["I think it was around {year}.", "Probably back in {year}.", "Historical records suggest {year}."],
+  where: ["Most sources say {place}.", "It seems to originate from {place}.", "People often associate it with {place}."],
+  why: ["Well, it's probably because {reason}.", "I’d guess it’s due to {reason}.", "Seems like {reason} is the main reason."],
+  what: ["It's basically {description}.", "You could think of it as {description}.", "People describe it as {description}."],
+  how: ["Usually, it's done by {method}.", "You can try {method}.", "It involves {method} in general."]
 };
 
-function rand(arr) {
-  return arr[Math.floor(Math.random() * arr.length)];
-}
+function rand(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
 function generateSmartAnswer(input) {
   const n = normalizeInput(input);
   let type = null;
-
   if(/\bwhen\b/.test(n)) type = 'when';
   else if(/\bwhere\b/.test(n)) type = 'where';
   else if(/\bwhy\b/.test(n)) type = 'why';
@@ -124,12 +98,11 @@ function generateSmartAnswer(input) {
 
   const placeholders = {
     year: `${1800 + Math.floor(Math.random() * 220)} AD`,
-    place: rand(['China', 'Italy', 'Egypt', 'Europe', 'Middle East', 'America', 'India']),
-    reason: rand(['historical reasons', 'natural causes', 'scientific factors', 'cultural habits']),
-    description: rand(['a type of object', 'an idea', 'a concept', 'a practice', 'a phenomenon']),
-    method: rand(['a standard process', 'common techniques', 'usual steps', 'typical methods'])
+    place: rand(['China','Italy','Egypt','Europe','Middle East','America','India']),
+    reason: rand(['historical reasons','natural causes','scientific factors','cultural habits']),
+    description: rand(['a type of object','an idea','a concept','a practice','a phenomenon']),
+    method: rand(['a standard process','common techniques','usual steps','typical methods'])
   };
-
   return template.replace(/\{(\w+)\}/g, (_, key) => placeholders[key] || 'something');
 }
 
@@ -160,15 +133,49 @@ document.addEventListener("DOMContentLoaded", () => {
   const input = document.getElementById("userInput");
   const chat = document.getElementById("chat");
 
-  document.getElementById("sendBtn").addEventListener("click", () => {
-    let userText = input.value.trim();
+  // Send message
+  document.getElementById("sendBtn").addEventListener("click", () => sendMessage());
+
+  // Keyboard shortcuts
+  input.addEventListener("keydown", e => {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+  });
+
+  document.addEventListener("keydown", e => {
+    if (e.ctrlKey && e.key.toLowerCase() === "r") { e.preventDefault(); resetChat(); }
+    if (e.ctrlKey && e.key.toLowerCase() === "e") { e.preventDefault(); exportMemory(); }
+    if (e.ctrlKey && e.key.toLowerCase() === "k") { e.preventDefault(); exportKnowledge(); }
+  });
+
+  function sendMessage() {
+    const userText = input.value.trim();
     if (!userText) return;
-
-    chat.innerHTML += `<div><b>You:</b> ${userText}</div>`;
+    chat.innerHTML += `<div class="user-msg"><b>You:</b> ${userText}</div>`;
     let reply = think(userText);
-    chat.innerHTML += `<div><b>Aru:</b> ${reply}</div>`;
-
+    chat.innerHTML += `<div class="bot-msg"><b>Aru:</b> ${reply}</div>`;
     input.value = "";
     chat.scrollTop = chat.scrollHeight;
-  });
+  }
+
+  function resetChat() {
+    if(confirm("Are you sure you want to reset memory and reload?")) location.reload();
+  }
+
+  function exportMemory() {
+    const blob = new Blob([JSON.stringify(memory, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "aru_memory.json";
+    a.click();
+  }
+
+  function exportKnowledge() {
+    const blob = new Blob([JSON.stringify(knowledge, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "aru_knowledge.json";
+    a.click();
+  }
 });
