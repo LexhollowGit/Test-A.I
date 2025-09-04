@@ -36,7 +36,6 @@ function expandSlang(text) {
 
 // 🟢 Fix simple grammar (heuristic)
 function grammarFix(text) {
-  // replace common typos / short forms
   const fixes = {
     "whn": "when",
     "wat": "what",
@@ -77,16 +76,61 @@ function searchKnowledge(text) {
   return null;
 }
 
-// 🟢 Random fallback responses
-function randomFallback(input) {
-  const options = [
-    `Hmm, "${input}" sounds interesting. Maybe it’s something scientific or historic.`,
-    `I don’t have exact info on "${input}", but it seems important.`,
-    `That’s unexpected! "${input}" might need more research.`,
-    `I don’t know everything yet, but "${input}" sounds fascinating.`,
-    `Good question about "${input}". You could teach me!`
-  ];
-  return options[Math.floor(Math.random() * options.length)];
+// 🟢 Smart fallback generator
+const SMART_TEMPLATES = {
+  when: [
+    "I think it was around {year}.",
+    "Probably back in {year}.",
+    "Historical records suggest {year}."
+  ],
+  where: [
+    "Most sources say {place}.",
+    "It seems to originate from {place}.",
+    "People often associate it with {place}."
+  ],
+  why: [
+    "Well, it's probably because {reason}.",
+    "I’d guess it’s due to {reason}.",
+    "Seems like {reason} is the main reason."
+  ],
+  what: [
+    "It's basically {description}.",
+    "You could think of it as {description}.",
+    "People describe it as {description}."
+  ],
+  how: [
+    "Usually, it's done by {method}.",
+    "You can try {method}.",
+    "It involves {method} in general."
+  ]
+};
+
+function rand(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function generateSmartAnswer(input) {
+  const n = normalizeInput(input);
+  let type = null;
+
+  if(/\bwhen\b/.test(n)) type = 'when';
+  else if(/\bwhere\b/.test(n)) type = 'where';
+  else if(/\bwhy\b/.test(n)) type = 'why';
+  else if(/\bwhat\b/.test(n)) type = 'what';
+  else if(/\bhow\b/.test(n)) type = 'how';
+
+  const tmplList = SMART_TEMPLATES[type] || Object.values(SMART_TEMPLATES).flat();
+  const template = rand(tmplList);
+
+  const placeholders = {
+    year: `${1800 + Math.floor(Math.random() * 220)} AD`,
+    place: rand(['China', 'Italy', 'Egypt', 'Europe', 'Middle East', 'America', 'India']),
+    reason: rand(['historical reasons', 'natural causes', 'scientific factors', 'cultural habits']),
+    description: rand(['a type of object', 'an idea', 'a concept', 'a practice', 'a phenomenon']),
+    method: rand(['a standard process', 'common techniques', 'usual steps', 'typical methods'])
+  };
+
+  return template.replace(/\{(\w+)\}/g, (_, key) => placeholders[key] || 'something');
 }
 
 // 🟢 Main brain
@@ -106,7 +150,7 @@ function think(userInput) {
   if (fact) return fact;
 
   // 3. Fallback smart guess
-  return randomFallback(userInput);
+  return generateSmartAnswer(userInput);
 }
 
 // === UI Hook ===
@@ -120,10 +164,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let userText = input.value.trim();
     if (!userText) return;
 
-    // User message
     chat.innerHTML += `<div><b>You:</b> ${userText}</div>`;
-
-    // Aru reply
     let reply = think(userText);
     chat.innerHTML += `<div><b>Aru:</b> ${reply}</div>`;
 
