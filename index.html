@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Lex’s Browser Brain — No-API Chatbot</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="title">
+      <span class="logo">🧠</span>
+      <h1>Browser Brain</h1>
+      <span class="tag">no API • no models • your code</span>
+    </div>
+
+    <div class="controls">
+      <select id="personality">
+        <option value="neutral">Neutral</option>
+        <option value="friendly" selected>Friendly</option>
+        <option value="playful">Playful</option>
+        <option value="dry">Dry</option>
+      </select>
+
+      <button id="btn-export-mem" title="Export memory as JSON">Export Memory</button>
+      <button id="btn-import-mem" title="Import memory JSON">Import Memory</button>
+      <input type="file" id="file-import-mem" accept=".json" hidden />
+
+      <button id="btn-export-know" title="Export knowledge as JSON">Export Knowledge</button>
+      <button id="btn-import-know" title="Import knowledge JSON">Import Knowledge</button>
+      <input type="file" id="file-import-know" accept=".json" hidden />
+
+      <button id="btn-reset" class="danger" title="Clear chat + memory">Reset</button>
+      <button id="btn-about" title="About this bot">About</button>
+    </div>
+  </header>
+
+  <main class="chat">
+    <ol id="messages" class="messages"></ol>
+
+    <div id="typing" class="typing hidden">
+      <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+    </div>
+
+    <form id="composer" autocomplete="off">
+      <input id="user-input" type="text" placeholder="Type here… e.g., “What is the capital of Japan?” or “remember that my name is Lex”" />
+      <button id="send" type="submit">Send</button>
+    </form>
+  </main>
+
+  <footer class="app-footer">
+    <small>Built for GitHub Pages. Everything runs in your browser. Memory is stored locally.</small>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
