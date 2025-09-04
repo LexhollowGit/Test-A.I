@@ -3,22 +3,77 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Aru Chatbot</title>
+  <title>Aru</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <h1>Aru</h1>
-  </header>
+  <!-- Login UI -->
+  <div id="loginScreen" class="screen active">
+    <div class="login-box">
+      <h1>Welcome to Aru</h1>
+      <input type="text" id="usernameInput" placeholder="Enter your name">
+      <button id="loginBtn">Start Chatting</button>
+    </div>
+  </div>
 
-  <main>
+  <!-- Chat UI -->
+  <div id="chatScreen" class="screen">
+    <div class="chat-header">
+      <h2>Aru</h2>
+      <button id="showHelp">?</button>
+    </div>
     <div id="chat" class="chat-window"></div>
+    <div id="helpOverlay" class="help hidden">
+      <h3>Keyboard & Usage Instructions</h3>
+      <ul>
+        <li><b>Enter:</b> Send message</li>
+        <li><b>Shift + Enter:</b> New line</li>
+        <li><b>Ctrl + R:</b> Reset memory & knowledge</li>
+        <li><b>Ctrl + E:</b> Export memory</li>
+        <li><b>Ctrl + K:</b> Export knowledge packs</li>
+        <li>Teach Aru: <i>remember that [subject] is [fact]</i></li>
+        <li>Tell Aru your name: <i>my name is [Your Name]</i></li>
+        <li>Ask casual questions or math expressions directly</li>
+      </ul>
+      <button id="closeHelp">Close</button>
+    </div>
     <div class="input-area">
-      <input type="text" id="userInput" placeholder="Ask me anything...">
+      <textarea id="userInput" placeholder="Type a message..."></textarea>
       <button id="sendBtn">Send</button>
     </div>
-  </main>
+  </div>
 
   <script src="script.js"></script>
+  <script>
+    // Login logic
+    const loginScreen = document.getElementById("loginScreen");
+    const chatScreen = document.getElementById("chatScreen");
+    const usernameInput = document.getElementById("usernameInput");
+    const loginBtn = document.getElementById("loginBtn");
+
+    loginBtn.addEventListener("click", () => {
+      const name = usernameInput.value.trim();
+      if (!name) return alert("Please enter your name.");
+      localStorage.setItem("aruUserName", name);
+      loginScreen.classList.remove("active");
+      chatScreen.classList.add("active");
+      // Greet user
+      document.getElementById("chat").innerHTML += `<div class="bot-msg">Hi ${name}! I'm Aru. Ask me anything!</div>`;
+    });
+
+    // Help overlay
+    const help = document.getElementById("helpOverlay");
+    document.getElementById("showHelp").addEventListener("click", ()=> help.classList.remove("hidden"));
+    document.getElementById("closeHelp").addEventListener("click", ()=> help.classList.add("hidden"));
+
+    // Keyboard shortcuts
+    const inputArea = document.getElementById("userInput");
+    document.addEventListener("keydown", e => {
+      if (e.ctrlKey && e.key.toLowerCase() === "r") { e.preventDefault(); location.reload(); }
+      if (e.ctrlKey && e.key.toLowerCase() === "e") { e.preventDefault(); alert("Export memory feature (implemented in script.js)"); }
+      if (e.ctrlKey && e.key.toLowerCase() === "k") { e.preventDefault(); alert("Export knowledge packs feature (implemented in script.js)"); }
+      if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); document.getElementById("sendBtn").click(); }
+    });
+  </script>
 </body>
 </html>
