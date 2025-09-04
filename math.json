@@ -1,0 +1,10 @@
+{
+  "pi": "Pi is roughly 3.14159, the ratio of a circle's circumference to its diameter.",
+  "pythagoras theorem": "In a right triangle, a² + b² = c², relating sides and hypotenuse.",
+  "derivative": "In calculus, a derivative measures how a function changes at a point.",
+  "integral": "An integral sums up small pieces to calculate area under a curve.",
+  "prime number": "A number greater than 1 with no divisors except 1 and itself.",
+  "fibonacci": "A sequence starting 0,1,1,2,3... where each number is sum of the previous two.",
+  "factorial": "n! means multiplying n * (n-1) * ... * 2 * 1.",
+  "equation": "A mathematical statement that two things are equal, like 2x + 3 = 7."
+}
